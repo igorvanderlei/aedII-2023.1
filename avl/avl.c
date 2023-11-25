@@ -1,8 +1,8 @@
-#include "bst.h"
+#include "avl.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-arvore inserir (arvore raiz, int valor){
+arvore inserir (arvore raiz, int valor, int *cresceu){
     //caso base
     if(raiz == NULL) {
         //1. Alocar espaço em memória
@@ -11,19 +11,112 @@ arvore inserir (arvore raiz, int valor){
         nova->valor = valor;
         nova->esq = NULL;
         nova->dir = NULL;
+        nova->fb = 0;
+
         //3. Retornar o ponteiro para a raiz (relativa) da nova árvore
+        *cresceu = 1;
         return nova;
     }
     //caso indutivo
     else {
         if(valor > raiz->valor) {
             raiz->dir = inserir(raiz->dir, valor);
+            //após inserir, é preciso atualizar os fatores de balanço
+            //fator de balanço "atual" => raiz->fb
+            //sub-árvore cresceu ou não => *cresceu
+            if(*cresceu) {
+                switch(raiz->fb) {
+                    case 0:
+                        raiz->fb = 1;
+                        *cresceu = 1;
+                        break;
+                    case 1:
+                        *cresceu = 0;
+                        return rotacao(raiz);
+                        break;
+                    case -1:
+                         raiz->fb = 0;
+                        *cresceu = 0;
+                        break;
+
+                }
+
+
+            }
+
+
         } else {
             raiz->esq = inserir(raiz->esq, valor);
+            //aqui
         }
         return raiz;
     }
 }
+
+arvore rotacao (arvore pivo) {
+    if(pivo->fb > 0) {
+        //Rotação esquerda
+        if(pivo->dir->fb >= 0) {
+            if(pivo->dir->fb == 0) {
+                pivo->fb = 1;
+                pivo->dir->fb = -1;
+            } else {
+                pivo->fb = 0;
+                pivo->dir->fb = 0;
+            }
+            //rotação simples esquerda
+        } else {
+            //rotação dupla esquerda
+        }
+
+    } else {
+        //Rotação direita
+
+    }
+
+}
+
+
+/*
+    inicialização
+    p
+   / \
+  t1  u
+     / \
+    t2  t3
+
+
+    final
+    u
+   / \
+  p   t3
+ / \
+t1  t2
+
+*/
+arvore rotacao_simples_esquerda(arvore pivo) {
+    //inicialização
+    arvore u, t1, t2, t3;
+    u = pivo->dir;
+    t1 = pivo->esq;
+    t2 = u->esq;
+    t3 = u->dir;
+
+
+    //Atualização dos ponteiros
+    u->esq = pivo;
+    pivo->dir = t2;
+
+    return u;
+
+}
+
+arvore rotacao_dupla_direita(arvore pivo) {
+    pivo->esq = rotacao_simples_esquerda(pivo->esq);
+    return rotacao_simples_direita(pivo);
+}
+
+
 
 void preorder(arvore raiz){
     //caso indutivo...

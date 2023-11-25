@@ -1,15 +1,18 @@
-#ifndef BST_H
-#define BST_H
+#ifndef AVL_H
+#define AVL_H
 
 typedef struct no {
     int valor;
+    int fb;
     struct no *esq;
     struct no *dir;
 } no;
 
 typedef no* arvore;
 
-arvore inserir (arvore raiz, int valor) ;
+arvore inserir (arvore raiz, int valor, int *cresceu) ;
+
+arvore rotacao (arvore pivo);
 
 void preorder(arvore raiz);
 void inorder(arvore raiz);
